@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+    <head>
+
+        <!-- Reqiured meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="initial-scale=1, width=device-width">
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        
+        <!-- Custom CSS -->
+        <link href="css/styles.css" rel="stylesheet">
+
+        <!-- Favicon -->
+        <link rel="icon" href="https://michaeldeckebach.com/files/favicon-16x16.png" sizes="16x16">
+        
+        <title>Call Center Simulator</title>
+
+    </head>
+
+    <body>
+
+        <!-- Header -->
+        <div class="container">
+
+            <div class="row align-items-center mt-4 mb-2 bg-secondary" id="title">
+            
+                <div class="col text-light pt-3 pb-2">
+                    <h2>A Call Center Staffing Calculator</h2>
+                </div>
+            
+                <div class="col-auto text-end">
+                    <a class="text-light" href="https://www.michaeldeckebach.com">Author</a>
+                </div>
+            
+            </div>
+            
+            <h3>How many agents do I need?</h3>
+            
+            <p>This web app illustrates the difference between Erlang C, the most common methodology for calculating call center staffing, and a computer simulation. <a href="https://github.com/mdeckebach/cx-simulator">Code is available on GitHub</a>.</p>
+
+        </div>
+
+        <!-- Input Form -->
+        <div class="container py-2" id="calc">
+
+            <form onsubmit="return false;">
+
+                <div class="row mb-2">
+
+                    <!-- Contacts -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="contacts" value="50" min="1" max="500" type="number" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[1-500] The number of contacts that arrive in the chosen period.">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="contacts">Contacts</label>
+
+                    <!-- Service Level - Percent -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="sl_percent" value="80" min="1" max="100" type="number" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[1-100] The target percentage of contacts to be answered in less than the time specified by the Threshold field.">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="sl_percent" >Service Level %</label>
+
+                    <!-- Period Duration -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="period" value="30" type="number" min="15" max="120" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[15-120] The time period in minutes to be simulated, commonly 30 for a half hour or 60 for one hour.">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="period">Period</label>
+
+                </div>
+
+                <div class="row mb-2">
+
+                    <!-- Average Handle Time -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="aht" value="300" type="number" min="60" max="1800" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[60-1800] The average duration of each contact in seconds.">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="aht">AHT</label>
+
+                    <!-- Service Level - Threshold -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="sl_threshold" value="20" min="1" max="300" type="number" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[1-300] How long a contact can queue before it is considered to be outside of service levels.">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="sl_threshold">Threshold</label>
+                    
+                    <!-- Max Occupancy -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="max_occupancy" value="85" min="1" max="100" type="number" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[1-100] The maximum percent of time in a Period that an agent can spend taking contacts (for example, 90% occupancy for a 30 minute Period would mean no agent can take contacts for more than 27 minutes).">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="max_occupancy">Max Occupancy</label>
+
+                </div>
+
+                <div class="row mb-2">
+
+                    <!-- Standard Deviation -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="std_dev" value="120" min="1" max="900" type="number" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[1-900] The standard deviation for handle times, in seconds (applies only to simulation methodology).">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="std_dev">Standard Deviation</label>
+                    
+                    <!-- Simulations -->
+                    <div class="col-sm-2">
+                        <input class="form-control" id="simulations" value="50" min="1" max="500" type="number" required data-bs-toggle="tooltip" data-bs-container="body" data-bs-placement="bottom" title="[1-500] The number of simulations to run for each agent count displayed, does not affect Erlang C calculations.">
+                    </div>
+                    <label class="col-form-label col-sm-2" for="simulations">Simulations</label>
+                    
+                    <!-- Calculate Button -->
+                    <div class="col">
+                        <button class="btn btn-primary" id="calc_btn" type="submit">Calculate</button>
+                    </div>
+
+                </div>
+
+            </form>
+
+            <hr>
+
+            <!-- Progress Bar -->
+            <div class="row">
+                <div class="col-sm-2 col-lg-1">
+                    <span>Progress</span>
+                </div>
+                <div class="col-sm-9 col-lg-10 align-self-center">
+                    <div class="progress">
+                        <span class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></span>
+                    </div>
+                </div>
+                <div class="col-sm-1 col-lg-1">
+                    <span class="progress-bar-title"></span>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- Chart -->
+            <div id="chart"></div>
+
+        </div>
+
+        <!-- Text -->
+        <div class="container py-2">
+
+            <!-- Overview -->
+            <h3>Overview</h3>
+
+            <p>A common workforce management (WFM) question is, "how many people do I need?" Even if you know how many contacts to expect and their average duration, inbound contacts arrive randomly so how do you know how many people are required to handle the work?</p>
+
+            <p>Erlang C is the industry standard for solving this problem. It is computationally efficient and widely available via online calculators, Excel VBA packages, and built into most WFM software. However, Erlang C tends to overestimate the number of agents requirements. See <a href="#further-reading">Further Reading</a> for a number of articles that go into more detail on Erlang C's limitations.</p>
+            
+            <p>One alternative to Erlang C is a computer simulation. While less common due to increased complexity, computer simulations can give a much more accurate staffing plan. <strong>This interactive model illustrates the difference between Erlang C and simulation methodologies.</strong></p>
+            
+            <!-- Detailed Instructions -->
+            <h3>Detailed Instructions</h3>
+            
+            <p>To use the calculator, fill out each form field with a whole number as follows:</p>
+
+            <ul>
+                <li><strong>Contacts</strong> - [1 to 500] - Represents the number of inbound contacts to randomly arrive during the given time period.</li>
+
+                <li><strong>AHT</strong> - [60 to 1800] - Average handle time, AKA the average duration of each contact in seconds.</li>
+
+                <li><strong>Standard Deviation</strong> - [1 to 900] - The dispersion of handle times around the AHT. This value represents the number of seconds +/- the inputted AHT that fall within one standard deviation. This input is used by the simulation methodology to generate random contact samples.</li>
+
+                <li><strong>Service Level %</strong> - [1 to 100] - The desired percentage of contacts to be answered within the allotted threshold.</li>
+
+                <li><strong>Threshold</strong> - [1 to 300] - The other part of service level, Threshold represents the number of seconds that a contact can queue for before it is deemed "outside of service levels."</li>
+
+                <li><strong>Simulations</strong> - [1 to 500] - The number of simulations to run for each agent count along the x-axis.</li>
+
+                <li><strong>Period</strong> - [15 to 120] - The length of time, in minutes, that the given contacts will arrive in. Note that it is possible for a contact to arrive near the end of the period and its duration to run past the period length.</li>
+
+                <li><strong>Max Occupancy</strong> - [1 to 100] - The maximum percentage of an agent's time during the period that can be spent handling contacts. This is important because as contact volumes increase, there is an "economies of scale" effect where Erlang C requires less agents to hit the desired service level. This can lead to agent burnout if a maximum occupancy constraint is not set. </li>
+            </ul>
+            
+            <!-- Erlang C Methodology-->
+            <h3>About Erlang C</h3>
+            
+            <p>In the above calculator, the probability of a contact exceeding the wait time threshold is calculated using Erlang C. <a href="https://www.callcentrehelper.com/erlang-c-formula-example-121281.htm">An excellent walkthrough of the Erlang C formula can be found here</a>.</p>
+
+            $$ P_w = {\displaystyle {{A^N \over N!} {N \over N-A}} \over {\left( \displaystyle \sum^{N-1}_{i=0} {A^i \over i!} \right) + {\displaystyle{A^N \over N!} {N \over N-A}}}} $$
+            
+            <!-- Simulation Methodology -->
+            <h3>About Simulations</h3>
+            
+            <p>The model above uses an event-drive simulation implemented in Javascript. This is more efficient than a time-driven simulation, as only the timestamps when a contacts arrive or depart need to be iterated through. As a result, the runtime of the simulation methodology is a function of the Contacts and Simulations inputs, and Period length has no impact.</p>
+            
+            <p>At a high-level, each agent count (tick along the x-axis) is simulated according to the number of times set in the Simulations input. The default value of 50 simulations per agent count is typically plenty to get a decent outcome. You can re-run the simulator by resubmitting the calculate button; if the simulation results line varies wildly then you may want to increase the number of simulations.</p>
+
+            <p>Within each simulation, the basic algorithm is as follows. First, contact arrival events are created, and with each arrival a random handle time is assigned. Handle times are generated according to a normal distrubtion, within +/- 1 second of the AHT and Standard Deviation inputs.</p>
+            
+            <p>The simulator keeps track of all arrival and departure events in an ordered list, which it then loops through. The timestamps of all arrivals are known at the start, but departures are inserted during iteration.</p>
+
+            <p>For each arrival, one of two things happens. If there are no contacts already queued and at least one available agent, the contact is immediately "connected" to an agent. In code, this is represented by decrementing the number of available agents and adding a departure event <code>handle_time</code> seconds into the future. Alternatively, if earlier contacts are already queued up, the contact is added to the back of the queue.</p>
+
+            <p>For each departure, one of two things happens. If the queue is empty, then the number of available agents is just incremented. However, if there are contacts queued, the first contact is pulled and connected to the agent, and a departure event is created just like when arrivals are immediately connected. There is an additional step here where the contact is checked against the service level threshold to see if it waited in the queue longer than acceptable.</p>
+
+            <p>At the end of the simulation, service level is calculated by comparing the count of contacts that exceeded the service level threshold against all contacts. These service levels are then averaged over all simulations to get the final result for each agent count.</p>
+
+            <p><i>Known limitation: The current methodology uses random numbers and the Box-Muller transform to generate handle times according to the inputted Average Handle Time (AHT) and Standard Deviations fields. <a href="https://stackoverflow.com/questions/25582882/javascript-math-random-normal-distribution-gaussian-bell-curve">See this Stack Overflow article for more detail.</a> In most call centers, handle times tend to follow an Erlang distribution. This means that the simulator tends to under-represent left and right-tailed values and over-represent values around the AHT. While the effect on overall results is probably minimal, it is a place for future improvement.</i></p>
+           
+            <!-- Technology -->
+            <h3>Technology</h3>
+            
+            <p>This website is built using HTML, CSS, and Javascript. The CSS relies heavily on <a href="https://getbootstrap.com/docs/5.1/getting-started/introduction/">Bootstrap</a> for most styling, with only minor customizations. Javascript is used to perform Erlang C calculations, run the event-driven simulation, and display the results. Results are visualized using the <a href="https://plotly.com/javascript/">Plotly javascript library</a>. All calculations are done client side. <a href="https://github.com/mdeckebach/cx-simulator">Code for this project can be viewed on GitHub</a>.</p>
+            
+            <p>A lot of visual inspiration was taken from <a href="https://engaging-data.com/fire-calculator/">Engaging Data's awesome FIRE Calculator</a>. Call Centre Helper also has <a href="https://www.callcentrehelper.com/tools/erlang-calculator/">a server-side Erlang calculator</a> that served as an example, and their <a href="https://www.callcentrehelper.com/erlang-c-formula-example-121281.htm">Erlang C Formula walkthrough</a> was helpful in wading through the math.</p>
+            
+            <!-- Privacy & Copyright -->
+            <h3>Privacy & Copyright</h3>
+            
+            <p>None of the information entered into the calculator is saved or even transmitted to another server. All calculations are done locally in your computer's browser.</p>
+            
+            <p><a href="https://opensource.org/licenses/MIT">This resource is made publically available under the MIT License</a>. You are welcome to use and adapt the underlying code however you would like, however I ask that you <a href="mailto:michael.deckebach@gmail.com">reach out via email</a> as a courtesy.</p>
+            
+            <!-- Further Reading -->
+            <h3 id="further-reading">Further Reading</h3>
+            
+            <ul>
+                <li><a href="https://swpp.org/summer-2014-on-target/comparing-erlang-c-and-simulation-modeling/">SWPP Comparing Erlang C and Simulation Modeling</a></li>
+
+                <li><a href="https://www.researchgate.net/publication/221526180_Does_the_Erlang_C_model_fit_in_real_call_centers">Does the Erlang C model fit in real call centers?</a></li>
+
+                <li><a href="https://www.icmi.com/files/ICMI/members/ccmr/ccmr1997/ccmr09/Service%20Level%20Notes.pdf">The Great Debate: Erlang C or Computer Simulation</a></li>
+
+                <li><a href="https://www.informs-sim.org/wsc09papers/287.pdf">Comparison of Call Center Models</a></li>
+            </ul>
+
+        </div>
+
+        <!-- Bootstrap JS with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+        <!-- Mathjax -->
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+               
+        <!-- Plotly.js -->
+        <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
+        
+        <!-- Custom JS -->
+        <script src="js/main.js"></script>
+        
+    </body>
+
+</html>

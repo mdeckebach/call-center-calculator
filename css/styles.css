@@ -1,0 +1,77 @@
+
+/* Remove Arrows from number input form fields */
+input::-webkit-outer-spin-button, /* Chrome, Safarie, Edge, Opera */
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] { /* Firefox */
+  -moz-appearance: textfield;
+}
+
+
+/* Link formatting */
+a:-webkit-any-link {
+    color: #4C74B9;
+    text-decoration: none;
+    border-width: 0 0 1px 0;
+    border-style: none none solid none;
+    border-color: #D2DCEE;
+    overflow-wrap: break-word;
+}
+
+:link, :link:visited, :link:hover, :visited:hover {
+    color: #4C74B9;
+}
+
+:link:hover, :visited:hover {
+    color: #4C74B9;
+    border-color: #4C74B9;
+}
+
+/* Background for main calculator area */
+#calc {
+    background-color: #eee;
+}
+
+/* Set max width */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1170px;
+    }
+}
+
+/* Top Background */
+#title {
+    border-radius: 5px;
+}
+
+/* Lightens horizontal line */
+hr {
+    opacity: .1;
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+/* Formats form tooltips */
+.tooltip-inner {
+    background-color: white;
+    color: black;
+}
+
+/* Adjusts height of progress bar */
+.progress {
+    height: .8em;
+    background-color: white;
+}
+
+/* Aligns progress bar % */
+.progress-bar-title {
+    display: flex;
+    justify-content: left;
+}
+
+/* Hide markers from legend */
+.legendsymbols {
+    display: none;
+}
