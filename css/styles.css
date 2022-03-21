@@ -75,3 +75,8 @@ hr {
 .legendsymbols {
     display: none;
 }
+
+/* Draw attention to invalid inputs */
+input:invalid {
+    box-shadow: 0 0 6px red;
+}

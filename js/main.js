@@ -3,7 +3,7 @@ var worker = null;
 
 if (window.Worker) {
     worker = new Worker("/js/worker.js");
-    document.getElementById('calc_btn').addEventListener('click', startWorker);
+    document.getElementById('input_form').addEventListener('submit', startWorker);
 } else {
     alert("Workers are not supported. Please use a different browser.");
 }
